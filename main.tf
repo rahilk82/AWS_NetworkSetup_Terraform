@@ -31,3 +31,14 @@ module "ec2" {
   instance_type = var.instance_type
   nic_id        = module.nic.nic_id
 }
+
+module "ec2_1" {
+  source        = "./modules/ec2"
+  providers = {
+    aws = aws.east-1
+  }
+  instance_name = var.instance_name
+  instance_ami  = var.instance_ami
+  instance_type = var.instance_type
+  nic_id        = module.nic.nic_id
+}
