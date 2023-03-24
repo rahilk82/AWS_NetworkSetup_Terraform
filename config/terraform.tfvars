@@ -14,18 +14,21 @@ sg_name = {
   "Name" = "prod_tls"
 }
 
-nic_name = {
-  "Name" = "prod_nic"
+instance_config = {
+
+  instance_1 = {
+    nic_name = {"Name" = "dev_nic1"}
+    private_ips = ["172.16.20.100"]
+    instance_name = {"Name" = "dev-SERVER1"}
+    instance_ami = "ami-00169914e6299b8e0"
+    instance_type = "t2.micro"
+  }
+
+  instance_2 = {
+    nic_name = {"Name" = "dev_nic2"}
+    private_ips = ["172.16.20.101"]
+    instance_name = {"Name" = "dev-SERVER2"}
+    instance_ami = "ami-00169914e6299b8e0"
+    instance_type = "t2.micro"
+  }
 }
-
-#INSTANCE
-
-private_ips = "172.16.10.100"
-
-instance_name = {
-  "Name" = "prod-server"
-}
-
-instance_ami = "ami-00169914e6299b8e0"
-
-instance_type = "t2.micro"

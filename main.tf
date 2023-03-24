@@ -18,16 +18,25 @@ module "sg" {
 }
 
 module "nic" {
-  source      = "./modules/nic"
+  source = "./modules/nic"
+
+  for_each = var.instance_config
+
   subnet_id   = module.subnet.subnet_id
-  nic_name    = var.nic_name
-  private_ips = var.private_ips
+  nic_name    = each.value.nic_name
+  private_ips = each.value.private_ips
 }
 
 module "ec2" {
-  source        = "./modules/ec2"
-  instance_name = var.instance_name
-  instance_ami  = var.instance_ami
-  instance_type = var.instance_type
-  nic_id        = module.nic.nic_id
+  source = "./modules/ec2"
+  depends_on = [
+    module.nic
+  ]
+
+  for_each = var.instance_config
+
+  instance_name = each.value.instance_name
+  instance_ami  = each.value.instance_ami
+  instance_type = each.value.instance_type
+  nic_id        = module.nic[each.key].nic_id
 }

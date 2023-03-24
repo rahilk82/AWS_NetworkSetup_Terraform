@@ -58,3 +58,7 @@ variable "instance_name" {
     "Name" = "Prod-Server-Rahil"
   }
 }
+
+variable "instance_config" {
+  type = map(any)
+}
