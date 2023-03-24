@@ -1,79 +1,33 @@
-################################ VPC ###############################################
-
-resource "aws_vpc" "custom_vpc_1" {
-  cidr_block = var.custom_vpc_1
-  tags = {
-    Name = "custom_vpc_1"
-  }
+module "vpc" {
+  source   = "./modules/vpc"
+  vpc_cidr = var.vpc_cidr
+  vpc_tag  = var.vpc_tag
 }
 
-################################ Subnet #############################################
-
-resource "aws_subnet" "custom_subnet_1" {
-  vpc_id     = aws_vpc.custom_vpc_1.id
-  cidr_block = var.custom_subnet_1
-  map_public_ip_on_launch = true
-  tags = {
-    Name = "custom_subnet_1"
-  }
-}
-resource "aws_subnet" "custom_subnet_2" {
-  vpc_id     = aws_vpc.custom_vpc_1.id
-  cidr_block = var.custom_subnet_2
-  tags = {
-    Name = "custom_subnet_2"
-  }
+module "subnet" {
+  source      = "./modules/subnet"
+  vpc_id      = module.vpc.vpc_id
+  subnet_cidr = var.subnet_cidr
+  subnet_name = var.subnet_name
 }
 
-
-################################# IGW ####################################################
-
-resource "aws_internet_gateway" "custom_igw_1" {
-  vpc_id = aws_vpc.custom_vpc_1.id
-
-  tags = {
-    Name = "custom_igw_1"
-  }
+module "sg" {
+  source  = "./modules/sg"
+  sg_name = var.sg_name
+  vpc_id  = module.vpc.vpc_id
 }
 
-
-resource "aws_internet_gateway_attachment" "igw_attachment_vpc" {
-  internet_gateway_id = aws_internet_gateway.custom_igw_1.id
-  vpc_id              = aws_vpc.custom_vpc_1.id
-
+module "nic" {
+  source      = "./modules/nic"
+  subnet_id   = module.subnet.subnet_id
+  nic_name    = var.nic_name
+  private_ips = var.private_ips
 }
 
-
-################################### Route Table #############################################
-
-resource "aws_route_table" "custom_route_table" {
-  vpc_id = aws_vpc.custom_vpc_1.id
-
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.custom_igw_1.id
-  }
-
-  route {
-    ipv6_cidr_block = "::/0"
-  }
-  tags = {
-    Name = "custom_route_table"
-  }
-}
-
-resource "aws_route_table_association" "custom_sub1_association" {
-  subnet_id      = aws_subnet.custom_subnet_1.id
-  route_table_id = aws_route_table.custom_route_table.id
-}
-
-resource "aws_route_table_association" "custom_sub2_association" {
-  subnet_id      = aws_subnet.custom_subnet_2.id
-  route_table_id = aws_route_table.custom_route_table.id
-}
-
-resource "aws_route" "custom_route" {
-  route_table_id = aws_route_table.custom_route_table.id
-  gateway_id = aws_internet_gateway.custom_igw_1.id
-  destination_cidr_block = "0.0.0.0/0"
+module "ec2" {
+  source        = "./modules/ec2"
+  instance_name = var.instance_name
+  instance_ami  = var.instance_ami
+  instance_type = var.instance_type
+  nic_id        = module.nic.nic_id
 }
